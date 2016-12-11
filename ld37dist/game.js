@@ -2,6 +2,14 @@
 var game = new Phaser.Game(320, 480, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 
 function preload() {
+    
+    game.input.maxPointers = 1;
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL; // NO_SCALE
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
+    game.scale.updateLayout(true);
+    //game.scale.setScreenSize();
+    game.scale.refresh();
 
     game.load.image('background', 'assets/misc/backgroundHudGlow.png');
     game.load.image('hud', 'assets/misc/hud.png');
@@ -11,6 +19,7 @@ function preload() {
     game.load.image('deadlyparticle', 'assets/ghostparticle.png');
     game.load.image('coin', 'assets/coin2.png');
     game.load.image('hero', 'assets/misc/hero.png');
+    game.load.image('herotrail', 'assets/misc/hero.png');
     game.load.image('powerbar', 'assets/blockgreen.png');
     game.load.audio('backgroundmusic', ['assets/backgroundmusic.mp3']);
     game.load.audio('explosionsnd', 'assets/ghostxplosion.mp3');
@@ -19,6 +28,7 @@ function preload() {
 }
 
 var ball;
+var balltrail;
 var bricks;
 var arrow;
 var levelGraphics;
@@ -121,10 +131,12 @@ var maxPower            = 400;
 var charging            = false;
 var numCoins            = 5;
 var onLevel             = 0;
+var highscore           = 0;
 
 var scoreText;
 var livesText;
 var introText;
+var highScoreText;
 
 var s;
 
@@ -161,6 +173,19 @@ function create() {
 
     ball.body.collideWorldBounds = true;
     ball.body.bounce.set(1);
+    
+    //  Add an emitter for the ship's trail
+    balltrail = game.add.emitter(ball.x, ball.y, 1300);
+    balltrail.gravity = 0;
+    balltrail.maxParticleSpeed = 0;
+    balltrail.minRotation = 0;
+    balltrail.maxRotation = 0;
+	//emitter.autoScale = false;
+    balltrail.setAlpha(0.5, 0, 3000);
+	balltrail.setScale(1,0,1,0,3500,Phaser.Easing.Linear.None);
+    balltrail.makeParticles('herotrail');
+    balltrail.start(false,3000,0);
+    balltrail.on = true;
 
     drawDeadly();
     
@@ -184,8 +209,10 @@ function create() {
     powerbar.scale.setTo(1, 0.5);
     setPowerbar(0);
     
+    var myhigh = getHighscoreFromCookie();
     scoreText = game.add.text(5, 435, 'score: 0', { font: "16px Arial", fill: "#ffffff", align: "left" });
     livesText = game.add.text(5, 455, 'lives: 3', { font: "16px Arial", fill: "#ffffff", align: "left" });
+    highScoreText = game.add.text(155, 455, 'Highscore: ' + myhigh, { font: "16px Arial", fill: "#ffffff", align: "left" });
     introText = game.add.text(game.world.centerX, 240, '- click to start -', { font: "40px Arial", fill: "#ffffff", align: "center" });
     introText.anchor.setTo(0.5, 0.5);
 
@@ -220,6 +247,9 @@ function update () {
         // update arrow position
         arrow.x=ball.x;
         arrow.y=ball.y;
+        
+        balltrail.x = ball.x;
+        balltrail.y = ball.y;
         
         filter.update();
 
@@ -258,6 +288,12 @@ function gameOver () {
     ball.body.velocity.setTo(0, 0);
     introText.text = 'Game Over!';
     introText.visible = true;
+    
+    if(score > getHighscoreFromCookie()) {
+        setHighscoreToCookie(score);
+        highscore = score;
+        highScoreText.text = 'Highscore: ' + highscore;
+    }
     
     game.input.onDown.add(reloadGame, this);
 
@@ -476,3 +512,36 @@ function revive() {
 function reloadGame() {
     location.reload();
 }
+
+function getHighscoreFromCookie() {
+    return getCookie('ld37hs');
+}
+
+function setHighscoreToCookie(_hval) {
+    setCookie('ld37hs', _hval, 30);
+}
+
+function getCookie(c_name)
+{
+    if (document.cookie.length>0)
+      {
+      c_start=document.cookie.indexOf(c_name + "=");
+      if (c_start!=-1)
+        { 
+        c_start=c_start + c_name.length+1 ;
+        c_end=document.cookie.indexOf(";",c_start);
+        if (c_end==-1) c_end=document.cookie.length
+        return unescape(document.cookie.substring(c_start,c_end));
+        } 
+      }
+    return "0";
+}
+
+
+function setCookie(c_name, value, expiredays)
+{
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + expiredays);
+    document.cookie = c_name+ "=" +escape(value) + ((expiredays==null) ? "" : "; expires=" + exdate.toUTCString());
+}
+
