@@ -44,25 +44,26 @@ var hudHeight = 50;
 var gamePlayWidth = 320;
 var gamePlayHeigth = 480 - hudHeight;
 var blockW = 16;
+var spaceKey;
 
 var levelDrawing = [
     // Wall1
-    [0*blockW, 10*blockW],
-    [4*blockW, 10*blockW],
-    [5*blockW, 10*blockW],
-    [6*blockW, 10*blockW],
-    [7*blockW, 10*blockW],
-    [7*blockW, 11*blockW],
-    [7*blockW, 12*blockW],
-    [7*blockW, 13*blockW],
-    [7*blockW, 14*blockW],
-    [7*blockW, 15*blockW],
-    [7*blockW, 16*blockW],
-    [7*blockW, 17*blockW],
-    [7*blockW, 18*blockW],
-    [7*blockW, 19*blockW],
-    [8*blockW, 19*blockW],
-    [9*blockW, 19*blockW],
+    [0*blockW,  10*blockW],
+    [4*blockW,  10*blockW],
+    [5*blockW,  10*blockW],
+    [6*blockW,  10*blockW],
+    [7*blockW,  10*blockW],
+    [7*blockW,  11*blockW],
+    [7*blockW,  12*blockW],
+    [7*blockW,  13*blockW],
+    [7*blockW,  14*blockW],
+    [7*blockW,  15*blockW],
+    [7*blockW,  16*blockW],
+    [7*blockW,  17*blockW],
+    [7*blockW,  18*blockW],
+    [7*blockW,  19*blockW],
+    [8*blockW,  19*blockW],
+    [9*blockW,  19*blockW],
     [10*blockW, 19*blockW],
     [10*blockW, 20*blockW],
     [10*blockW, 21*blockW],
@@ -155,7 +156,8 @@ function create() {
     
     music = game.add.audio('backgroundmusic');
     music.volume = 0.4;
-    music.play();
+    music.play('', 0, 1, true);
+    music.onLoop.add(playLevelMusic, this);
     
     explosionsnd = game.add.audio('explosionsnd');
     coinsnd = game.add.audio('coinsnd');
@@ -213,11 +215,15 @@ function create() {
     scoreText = game.add.text(5, 435, 'score: 0', { font: "16px Arial", fill: "#ffffff", align: "left" });
     livesText = game.add.text(5, 455, 'lives: 3', { font: "16px Arial", fill: "#ffffff", align: "left" });
     highScoreText = game.add.text(155, 455, 'Highscore: ' + myhigh, { font: "16px Arial", fill: "#ffffff", align: "left" });
-    introText = game.add.text(game.world.centerX, 240, '- click to start -', { font: "40px Arial", fill: "#ffffff", align: "center" });
+    introText = game.add.text(game.world.centerX, 240, 'click or spacebar to start and fire ball. take yellow circle watch out for red ghosts', { font: "40px Arial", fill: "#ffff88", align: "center" });
     introText.anchor.setTo(0.5, 0.5);
+    introText.wordWrap = true;
+    introText.wordWrapWidth = gamePlayWidth - 50;
 
+    spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
+    spaceKey.onDown.add(releaseBall, this);
     game.input.onDown.add(releaseBall, this);
-
 }
 
 function update () {
@@ -260,7 +266,9 @@ function update () {
 function releaseBall () {
     power = minPower;
     game.input.onDown.remove(releaseBall, this);
+    spaceKey.onDown.remove(releaseBall, this);
     game.input.onUp.add(fire, this);  
+    spaceKey.onUp.add(fire, this);
     charging = true;
     introText.visible = false;
 }
@@ -268,6 +276,8 @@ function releaseBall () {
 function fire() {
     game.input.onUp.remove(fire, this); 
     game.input.onDown.add(releaseBall, this);
+    spaceKey.onUp.remove(fire, this);
+    spaceKey.onDown.add(releaseBall, this);
     
     ball.body.velocity.y += Math.sin(arrow.angle*degToRad)*power/2;
     ball.body.velocity.x += Math.cos(arrow.angle*degToRad)*power/2;
@@ -283,10 +293,16 @@ function deaccelareta() {
         ball.body.velocity.x*=velocityFriction;
 }
 
+function playLevelMusic() {
+    music.play('', 0, 1, true);
+}
+
 function gameOver () {
 
     ball.body.velocity.setTo(0, 0);
-    introText.text = 'Game Over!';
+    introText.text = 'Game Over! Click to restart.';
+    introText.wordWrap = true;
+    introText.wordWrapWidth = gamePlayWidth - 50;
     introText.visible = true;
     
     if(score > getHighscoreFromCookie()) {
@@ -296,6 +312,7 @@ function gameOver () {
     }
     
     game.input.onDown.add(reloadGame, this);
+    spaceKey.onDown.add(reloadGame, this);
 
 }
 
@@ -334,7 +351,7 @@ function ballHitBrick (_ball, _brick) {
         });
 
         game.input.onDown.add(revive, this);
-        //revive();
+        spaceKey.onDown.add(revive, this);
     }
 
 }
@@ -496,6 +513,7 @@ function revive() {
             item.filters = null;
         });
     game.input.onDown.remove(revive, this);
+    spaceKey.onDown.remove(revive, this);
     
     music.volume = 0.4;
     
