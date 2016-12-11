@@ -14,7 +14,7 @@ function preload() {
     game.load.image('background', 'assets/misc/backgroundHudGlow.png');
     game.load.image('hud', 'assets/misc/hud.png');
     game.load.image('block', 'assets/blockgreen.png');
-    game.load.image('arrow', 'assets/arrow.png');
+    game.load.image('arrow', 'assets/arrow2.png');
     game.load.image('deadly', 'assets/blockdeadghost2.png');
     game.load.image('deadlyparticle', 'assets/ghostparticle.png');
     game.load.image('coin', 'assets/coin2.png');
