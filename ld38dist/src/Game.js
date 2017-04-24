@@ -18,8 +18,10 @@ BasicGame.Game = function (game) {
     this.backgroundGround = null;
     this.backMist = null;
     this.frontMist = null;
-    this.backMistAngle = 0.0;
-    this.frontMistAngle = 0.0;
+    this.backgroundClean = null;
+    this.gameOverMan = null;
+    this.pressAnyKey = null;
+    this.highscoreBoard = null;
     this.backgroundGO = null;
     this.heroCannon = null;
     this.hud = null;
@@ -28,10 +30,13 @@ BasicGame.Game = function (game) {
     this.heroLife = 0;
     this.numbMoab = 0;
     this.heroScore = 0;
+    this.hScore = 0;
     this.hudScoreObj = null;
+    this.highScoreObj = null;
 
     this.cursors = null;
     this.fireKey = null;
+    this.enterKey = null;
     this.moabKey = null;
 
     this.bullets = null;
@@ -45,6 +50,9 @@ BasicGame.Game = function (game) {
     this.enemiesSpawnTime = 0;
     this.lastSpawnTime = 0;
     this.emitter = null;
+
+    this.enemySpawnInfo = null;
+    this.spawnDone = null;
 
     this.game;      //  a reference to the currently running game (Phaser.Game)
     this.add;       //  used to add sprites, text, groups, etc (Phaser.GameObjectFactory)
@@ -91,15 +99,16 @@ BasicGame.Game.prototype = {
         this.numbMoab = 3;
         this.stage.smoothed = false;
         this.heroScore = 0;
+        this.fireRate = 500;
 
         //this.background = this.add.sprite(0, 0, 'gameBackground');
         this.backgroundSky = this.add.sprite(0, 0, 'gameBackgroundSky');
         this.backgroundSky.smoothed = false;
         this.backgroundGround = this.add.sprite(0, 0, 'gameBackgroundGround');
         this.backgroundGround.smoothed = false;
-        this.backMist = this.add.sprite(180 * 3, 465 * 3, 'gameMistOfWarBack');
+        this.backMist = this.add.sprite(170 * 3, 465 * 3, 'gameMistOfWarBack');
         this.backMist.smoothed = false;
-        this.frontMist = this.add.sprite(180 * 3, 465 * 3, 'gameMistOfWarFront');
+        this.frontMist = this.add.sprite(170 * 3, 465 * 3, 'gameMistOfWarFront');
         this.frontMist.smoothed = false;
         this.backMist.anchor.setTo(0.5, 0.5);
         this.frontMist.anchor.setTo(0.5, 0.5);
@@ -139,6 +148,7 @@ BasicGame.Game.prototype = {
         // Keyboard
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.fireKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this.enterKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
         this.moabKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this.moabKey.onDown.add(this.moab, this);
@@ -178,6 +188,8 @@ BasicGame.Game.prototype = {
 
         this.hudHealthMoabObj = new HudMoab(this.game, 96, 630, this.numbMoab);
         this.hudScoreObj = new HudScore(this.game, 860, 685);
+        this.highScoreObj = new HighScore(this.game, 588, 406);
+        this.highScoreObj.visible(false);
 
         this.backgroundGO = this.add.sprite(0, 0, 'gameBackgroundGameOver');
         this.backgroundGO.smoothed = false;
@@ -186,6 +198,46 @@ BasicGame.Game.prototype = {
         this.backgroundGO.scale.setTo(3, 3);
         this.backgroundGO.visible = false;
 
+        this.backgroundClean = this.add.sprite(0, 0, 'cleanBackground');
+        this.backgroundClean.smoothed = false;
+        this.backgroundClean.x = 0;
+        this.backgroundClean.y = 0;
+        this.backgroundClean.scale.setTo(3, 3);
+        this.backgroundClean.visible = false;
+
+        this.gameOverMan = this.add.sprite(183, 72, 'gameOverMan');
+        this.gameOverMan.smoothed = false;
+        this.gameOverMan.scale.setTo(3, 3);
+        this.gameOverMan.visible = false;
+
+        this.highscoreBoard = this.add.sprite(282, 336, 'gameHighScoreBoard');
+        this.highscoreBoard.smoothed = false;
+        this.highscoreBoard.scale.setTo(3, 3);
+        this.highscoreBoard.visible = false;
+
+        this.pressAnyKey = this.add.sprite(195, 549, 'pressAnyKey');
+        this.pressAnyKey.smoothed = false;
+        this.pressAnyKey.scale.setTo(3, 3);
+        this.pressAnyKey.visible = false;
+
+        this.enemySpawnInfo = {
+            "skull": 
+                {
+                    "spawnTime": 5000,
+                    "spawnScore": 400,
+                    "spawnChance": 2,
+                    "lastSpawnTime": 0
+                }
+            ,
+            "ufo": 
+                {
+                    "spawnTime": 3000,
+                    "spawnScore": 0,
+                    "spawnChance": 1,
+                    "lastSpawnTime": 0
+                }
+            };
+        this.spawnDone = [false, false, false, false, false];
     },
 
     update: function () {
@@ -209,7 +261,7 @@ BasicGame.Game.prototype = {
                 this.fireBullet();
             }
         } else {
-            if (this.cursors.up.isDown)
+            if (this.enterKey.isDown)
             {
                 this.quitAfterKeyPress();
             }
@@ -222,6 +274,9 @@ BasicGame.Game.prototype = {
         if(this.spawnEnemyAllowed == true)
         {
             var current_time = this.game.time.time;
+            this.createEnemy(current_time);
+            
+            /* OLD SPAWN TYPE
             if(current_time - this.lastSpawnTime > this.enemiesSpawnTime){
                 this.enemiesSpawnTime = this.game.rnd.integerInRange(2500, 5000);
 
@@ -235,7 +290,7 @@ BasicGame.Game.prototype = {
 
                 this.lastSpawnTime = current_time;
                 this.createEnemy();
-            }
+            }*/
         }
 
         /*if (this.cursors.up.isDown)
@@ -255,8 +310,8 @@ BasicGame.Game.prototype = {
 
         this.bullets.forEachAlive( this.killIfBulletIsOutOfWorld, this ); // function(box) {  if(box.y < 300) { box.kill(); }  }
 
-        this.frontMist.angle += 0.1;
-        this.backMist.angle += 0.03;
+        this.frontMist.angle += 0.05;
+        this.backMist.angle += 0.01;
     },
 
     quitGame: function (pointer) {
@@ -265,8 +320,25 @@ BasicGame.Game.prototype = {
         //this.game.camera.onFadeComplete.add(this.resetFade, this);
         this.internalGameState = 'dead';
         this.spawnEnemyAllowed = false;
-        this.backgroundGO.visible = true;
-        this.game.world.bringToTop(this.backgroundGO);
+        //this.backgroundGO.visible = true;
+        //this.game.world.bringToTop(this.backgroundGO);
+
+        this.backgroundClean.visible = true;
+        this.gameOverMan.visible = true;
+        this.pressAnyKey.visible = true;
+        this.highscoreBoard.visible = true;
+
+        this.highScoreObj.updateScore(this.heroScore);
+
+        this.game.world.bringToTop(this.backgroundClean);
+        this.game.world.bringToTop(this.backMist);
+        this.game.world.bringToTop(this.frontMist);
+        this.game.world.bringToTop(this.gameOverMan);
+        this.game.world.bringToTop(this.pressAnyKey);
+        this.game.world.bringToTop(this.highscoreBoard);
+
+        this.highScoreObj.visible(true);
+
         this.game.camera.flash(0xff0000, 1000);
         this.music.volume = 0.4;
         this.sndAlien1.mute = true;
@@ -379,7 +451,7 @@ BasicGame.Game.prototype = {
 
     },
 
-    createEnemy: function () {
+    createEnemy: function (current_time) {
 
         /*
         var enemy1 = this.add.sprite(this.game.world.randomX, 180, 'enemy1');
@@ -393,12 +465,99 @@ BasicGame.Game.prototype = {
             this.enemies.push(enemy1);
         }*/
 
+        //if(current_time - this.lastSpawnTime > this.enemiesSpawnTime)
+        {
+
+            var chanceOfIt = this.game.rnd.integerInRange(1, 5);
+            var createUfo = chanceOfIt % this.enemySpawnInfo.ufo.spawnChance; 
+            var createSkull = chanceOfIt % this.enemySpawnInfo.skull.spawnChance;
+
+            if(createUfo == 0) // Chance of creating it
+            {
+                if(this.heroScore >= this.enemySpawnInfo.ufo.spawnScore) { // got enough score for creation of it?
+                    //if(current_time - this.lastSpawnTime > enemySpawnInfo.ufo.spawnTime) {
+                        if(current_time - this.enemySpawnInfo.ufo.lastSpawnTime > this.enemySpawnInfo.ufo.spawnTime) {
+                            this.enemySpawnInfo.ufo.lastSpawnTime = current_time;
+                            this.enemies.push(new EnemyUfo(this.enemies.length + 1, this.game, this.heroCannon));
+                        }
+                    //}
+                }
+            }
+
+            if(createSkull == 0)
+            {
+                if(this.heroScore >= this.enemySpawnInfo.skull.spawnScore) { // got enough score for creation of it?
+                    //if(current_time - this.lastSpawnTime > enemySpawnInfo.ufo.spawnTime) {
+                        if(current_time - this.enemySpawnInfo.skull.lastSpawnTime > this.enemySpawnInfo.skull.spawnTime) {
+                            this.enemySpawnInfo.skull.lastSpawnTime = current_time;
+                            this.enemies.push(new EnemySkull(this.enemies.length + 1, this.game, this.heroCannon));
+                        }
+                    //}
+                }
+            }
+
+            if(!this.spawnDone[0] && this.heroScore == 2000 && this.heroScore <= 2100) {
+                this.spawnDone[0] = true;
+                this.enemySpawnInfo.ufo.spawnTime -= 1000;
+            }
+
+            if(!this.spawnDone[1] && this.heroScore >= 3000 && this.heroScore <= 3100) {
+                this.spawnDone[1] = true;
+                this.enemySpawnInfo.skull.spawnTime -= 1000;
+                this.enemySpawnInfo.ufo.spawnTime -= 1000;
+            }
+
+            if(!this.spawnDone[2] && this.heroScore >= 4000 && this.heroScore <= 4100) {
+                this.spawnDone[2] = true;
+                this.enemySpawnInfo.skull.spawnChance -= 1;
+            }
+
+            if(!this.spawnDone[3] && this.heroScore >= 4500 && this.heroScore <= 4600) {
+                this.spawnDone[3] = true;
+                this.enemySpawnInfo.skull.spawnTime -= 1000;
+                this.enemySpawnInfo.ufo.spawnTime -= 1000;
+            }
+
+            if(!this.spawnDone[4] && this.heroScore >= 7000 && this.heroScore <= 7100) {
+                this.fireRate = 200;
+                this.spawnDone[4] = true;
+                this.enemySpawnInfo.skull.spawnTime = 1000;
+                this.enemySpawnInfo.ufo.spawnTime = 1000;
+            }
+
+            
+
+            /*this.enemiesSpawnTime = this.game.rnd.integerInRange(2500, 5000);
+
+            if(this.heroScore > 1000 && this.heroScore < 2000) {
+                this.enemiesSpawnTime = this.game.rnd.integerInRange(2000, 4000);
+            } else if(this.heroScore > 3000 && this.heroScore < 4000) {
+                this.enemiesSpawnTime = this.game.rnd.integerInRange(1000, 2500);
+            } else if(this.heroScore >= 4000) {
+                this.enemiesSpawnTime = this.game.rnd.integerInRange(500, 1500);
+            }
+
+            this.lastSpawnTime = current_time;
+
+            this.enemiesTotal = this.enemiesTotal + 1;
+
+            this.enemies.push(new EnemyUfo(this.enemiesTotal, this.game, this.heroCannon));
+            this.enemiesTotal = this.enemiesTotal + 1;
+            this.enemies.push(new EnemySkull(this.enemiesTotal, this.game, this.heroCannon));*/
+                
+            }
+
+
+        
+
+        /* OLD
         this.enemiesTotal = this.enemiesTotal + 1;
         //this.enemies.push(new AlienEnemy("enemy1", this.enemiesTotal, this.game, this.heroCannon));
         this.enemies.push(new EnemyUfo(this.enemiesTotal, this.game, this.heroCannon));
         this.enemiesTotal = this.enemiesTotal + 1;
         //this.enemies.push(new AlienEnemy("enemy1", this.enemiesTotal, this.game, this.heroCannon));
         this.enemies.push(new EnemySkull(this.enemiesTotal, this.game, this.heroCannon));
+        */
 
     },
 
@@ -418,6 +577,7 @@ BasicGame.Game.prototype = {
         {
             this.heroScore += enemyObj.score;
             this.hudScoreObj.updateScore(this.heroScore);
+            enemyObj.alive = false;
             //console.log('Enemy dead:' + enemy.name + " x:" + enemy.x);
             this.emitter = this.game.add.emitter(enemy.x, enemy.y, 200);
             this.emitter.makeParticles('deadlyparticle');//, 0, 250, false, false);
@@ -570,6 +730,36 @@ HudScore.prototype.updateScore = function(newScore) {
 
 };
 
+var HighScore = function HighScore(game, x, y) {
+    this.game = game;
+    this.hscore = 0;
+
+    this.highScore = [];
+
+    for(ix = 0; ix < 10; ++ix) {
+        var boomScore0 = this.game.add.sprite(x - (ix * 28), y, 'highScoreNumbers');
+        boomScore0.smoothed = false;
+        boomScore0.scale.setTo(3, 3);
+        boomScore0.frame = 0;
+        this.highScore.push(boomScore0);
+    }
+};
+
+HighScore.prototype.updateScore = function(newScore) {
+    var scores2 = newScore.toString().split("").reverse();
+
+    for(u = 0; u < scores2.length; ++u) {
+        this.highScore[u].frame = parseInt(scores2[u]);
+    }
+};
+
+HighScore.prototype.visible = function(visible) {
+    for (i = 0; i < this.highScore.length; i++) {
+        this.highScore[i].visible = visible;
+        this.game.world.bringToTop(this.highScore[i]);
+    }
+};
+
 var AlienEnemy = function AlienEnemy(enemyType, enemyId, game, playerHero) { //enemyType,
 
     this.game = game;
@@ -665,6 +855,7 @@ var EnemyUfo = function (index, game, playerHero) {
     this.enemySpeed = 100;
     this.enemySpeedTime = 3000;
     this.score = 100;
+
     AlienEnemy.call(this, this.enemyType, index, game, playerHero);
 
 }
@@ -681,6 +872,7 @@ var EnemySkull = function (index, game, playerHero) {
     this.enemySpeed = 200;
     this.enemySpeedTime = 2000;
     this.score = 150;
+
     AlienEnemy.call(this, this.enemyType, index, game, playerHero);
 
 }

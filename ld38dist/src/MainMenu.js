@@ -2,6 +2,9 @@
 BasicGame.MainMenu = function (game) {
 
 	this.background = null;
+    this.backMist = null;
+    this.frontMist = null;
+    this.title = null;
 	this.music = null;
 	this.playButton = null;
 	this.startButton = null;
@@ -28,12 +31,25 @@ BasicGame.MainMenu.prototype = {
 			this.music.play();
 		}
 
-		this.background = this.add.sprite(0, 0, 'titlepage');
+		this.background = this.add.sprite(0, 0, 'cleanBackground');
 		this.background.x = 0;
         this.background.y = 0;
         this.background.height = this.game.height;
         this.background.width = this.game.width;
         this.background.smoothed = false;
+
+        this.backMist = this.add.sprite(170 * 3, 465 * 3, 'gameMistOfWarBack');
+        this.backMist.smoothed = false;
+        this.frontMist = this.add.sprite(170 * 3, 465 * 3, 'gameMistOfWarFront');
+        this.frontMist.smoothed = false;
+        this.backMist.anchor.setTo(0.5, 0.5);
+        this.frontMist.anchor.setTo(0.5, 0.5);
+        this.backMist.scale.setTo(3, 3);
+        this.frontMist.scale.setTo(3, 3);
+
+		this.title = this.add.sprite(33, 30, 'gameTitle');
+        this.title.smoothed = false;
+        this.title.scale.setTo(3, 3);
 
 		this.startButton = this.add.button(600, 450, 'startButton', this.startGame, this, 1, 0, 1);
 		this.startButton.smoothed = false;
@@ -61,7 +77,8 @@ BasicGame.MainMenu.prototype = {
 	update: function () {
 
 		//	Do some nice funky main menu effect here
-
+        this.frontMist.angle += 0.05;
+        this.backMist.angle += 0.02;
 	},
 
 	startGame: function (pointer) {

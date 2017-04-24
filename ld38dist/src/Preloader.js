@@ -33,6 +33,11 @@ BasicGame.Preloader.prototype = {
 		//	As this is just a Project Template I've not provided these assets, swap them for your own.
 		this.load.image('titlepage', 'assets/image/menu-screen.png');
 		this.load.image('playButton', 'assets/image/play_button.png');
+		this.load.image('cleanBackground', 'assets/image/clean-background.png');
+		this.load.image('gameTitle', 'assets/image/aotpv-title.png');
+		this.load.image('gameOverMan', 'assets/image/game-over-man.png');
+		this.load.image('pressAnyKey', 'assets/image/press-any-key.png');
+        this.load.image('helpText', 'assets/image/help-text.png');
 		this.load.spritesheet('startButton', 'assets/image/start.png', 75, 26);
 		this.load.spritesheet('helpButton', 'assets/image/help.png', 62, 29);
 		this.load.spritesheet('backButton', 'assets/image/back.png', 39, 9);
@@ -54,8 +59,9 @@ BasicGame.Preloader.prototype = {
 		this.load.image('gameBackgroundSky', 'assets/image/background-sky.png');
 		this.load.image('gameBackgroundGround', 'assets/image/background-ground.png');
 		this.load.image('gameBackgroundGameOver', 'assets/image/gameover-screen.png');
-		this.load.image('gameMistOfWarBack', 'assets/image/back-mist.png');
-		this.load.image('gameMistOfWarFront', 'assets/image/front-mist.png');
+        this.load.image('gameHighScoreBoard', 'assets/image/highscore-board.png');
+		this.load.image('gameMistOfWarBack', 'assets/image/back-mist02.png');
+		this.load.image('gameMistOfWarFront', 'assets/image/front-mist02.png');
 
 		this.load.image('heroWeaponCannon', 'assets/image/cannon-tower.png');
 		this.load.spritesheet('heroWeaponCannonAnim', "assets/image/cannon-fire.png", 32, 128);
@@ -70,6 +76,7 @@ BasicGame.Preloader.prototype = {
 		this.load.spritesheet('heroHudHealth', "assets/image/health-bar.png", 64, 9, 7);
 		this.load.image('heroHudMoab', 'assets/image/bomb.png');
 		this.load.spritesheet('heroHudNumbers', "assets/image/score-numbers.png", 4, 8);
+        this.load.spritesheet('highScoreNumbers', 'assets/image/green-numbers.png', 8, 16);
 
 	},
 
