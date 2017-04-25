@@ -519,7 +519,7 @@ BasicGame.Game.prototype = {
             }
 
             if(!this.spawnDone[4] && this.heroScore >= 7000 && this.heroScore <= 7100) {
-                this.fireRate = 200;
+                //this.fireRate = 200;
                 this.spawnDone[4] = true;
                 this.enemySpawnInfo.skull.spawnTime = 1000;
                 this.enemySpawnInfo.ufo.spawnTime = 1000;
