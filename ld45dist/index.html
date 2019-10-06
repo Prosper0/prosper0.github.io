@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<script type="text/javascript" src="lib/phaser.min.js"></script>
+	<script src="js/game.js" type="module"></script>
+    <style>
+        canvas {
+             border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="gameCanvas"></div>
+    <p>Arrow Keys to move. S for shield. Spacebar to fire (when you have weapon).</p>
+    <p>'P' to pause.</p>
+    <div>Lives: <span id="divLives"></span></div>
+    <div>Score: <span id="divScore"></span></div>
+    <div>Gold: <span id="divCoins"></span></div>
+    <div>Weapon: <span id="divWeapon"></span></div>
+    <div>BEST SCORE: <span id="divBestScore">?</span></div>
+    <hr>
+    <p>
+        Pick up the amount of gold to get better weapons. From the start you have a crappy shield that only works on certain asteroids. Each asteroid has it's own health level also, one hit is not always enough. Also, the Shield has a cool-down period so it can't be used as much as you'd want.
+        <ul>
+            <li>10: Pea-shooter</li>
+            <li>15: Poor-man-laser</li>
+            <li>30: AK-Z</li>
+            <li>50: BulletHell</li>
+        </ul>
+    </p>
+    <p><img src="assets/ship2.png" style="width: 32px" /> Your ship (you, the player)</p>
+    <p><img src="assets/coin.png" style="width: 24px" /> Gold (pick up to get weapons)</p>
+    <p><img src="assets/asteroidb.png" style="width: 32px" /><img src="assets/asteroidblue.png" style="width: 32px" /><img src="assets/asteroidg.png" style="width: 32px" /> Asteroids (enemy, avoid or kill)</p>
+</body>
+
+</html>
