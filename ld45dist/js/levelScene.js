@@ -110,7 +110,12 @@ export default class levelScene extends Phaser.Scene {
         this.spawnAsteroidsTimer = this.time.addEvent({
             delay: 10000,
             callback: function () {
-                for (let i = 0; i < Phaser.Math.Between(2, 10); i++) {
+                let howManyToCreate = Phaser.Math.Between(2, 10);
+                
+                if(this.score < 100 || this.topScore < 100 && this.player.sprite.lives < 3)
+                    howManyToCreate = 1;
+                
+                for (let i = 0; i < howManyToCreate; i++) {
                     if (this.asteroidGroup.getChildren().length < 50) {
                         let scale = Phaser.Math.Between(3, 7);
                         this.createAsteroid(Phaser.Math.Between(0, 640), Phaser.Math.Between(0, 480), (scale / 10), scale, 'big', true);
