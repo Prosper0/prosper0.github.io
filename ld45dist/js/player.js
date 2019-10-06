@@ -38,7 +38,7 @@ export default class Player {
         
         // Add sound
         this.sndFire = this.scene.sound.add('fire', { loop: false });
-        this.sndFire.volume = 0.3;
+        this.sndFire.volume = 0.2;
         this.sndShield = this.scene.sound.add('shield', { loop: false });
         this.sndShield.volume = 0.4;
         this.sndWeaponUpgrade = this.scene.sound.add('weaponUpgrade', { loop: false });
