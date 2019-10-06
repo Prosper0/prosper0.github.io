@@ -163,9 +163,16 @@ export default class Player {
 
     }
     
+    resetWeapons () {
+        this.sprite.weapon.active = false;
+        this.sprite.weaponType = 0;
+        this.sprite.weaponTypeText = 'Shield';
+        this.sprite.thereWasAWeapoUpgrade = false;
+    }
+    
     activateWeapons () {
-        
-        if(this.sprite.weaponType == 10) {
+
+        if(this.sprite.weaponType >= 10 && this.sprite.weaponType < 15) {
             if(this.sprite.weaponTypeText != 'Pea-shooter') {
                 this.sprite.bulletMax = 1;
                 this.sprite.weapon.bulletLifespan = 500;
@@ -175,7 +182,7 @@ export default class Player {
                 this.sprite.weaponTypeText = 'Pea-shooter';
                 this.sprite.thereWasAWeapoUpgrade = true;   
             }
-        } else if(this.sprite.weaponType == 15) {
+        } else if(this.sprite.weaponType >= 15 && this.sprite.weaponType < 30) {
             if(this.sprite.weaponTypeText != 'Poor-man-laser') {
                 this.sprite.bulletMax = 3;
                 this.sprite.weapon.bulletLifespan = 750;
@@ -185,7 +192,7 @@ export default class Player {
                 this.sprite.weaponTypeText = 'Poor-man-laser';
                 this.sprite.thereWasAWeapoUpgrade = true;
             }
-        } else if(this.sprite.weaponType == 30) {
+        } else if(this.sprite.weaponType >= 30 && this.sprite.weaponType < 50) {
             if(this.sprite.weaponTypeText != 'AK-Z') {
                 this.sprite.bulletMax = 3;
                 this.sprite.weapon.bulletLifespan = 250;
@@ -195,7 +202,7 @@ export default class Player {
                 this.sprite.weaponTypeText = 'AK-Z';
                 this.sprite.thereWasAWeapoUpgrade = true;   
             }
-        } else if(this.sprite.weaponType == 50) {
+        } else if(this.sprite.weaponType >= 50) {
             if(this.sprite.weaponTypeText != 'BulletHell') {
                 this.sprite.bulletMax = 30;
                 this.sprite.weapon.bulletLifespan = 800;

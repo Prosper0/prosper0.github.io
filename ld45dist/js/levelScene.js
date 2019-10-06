@@ -206,8 +206,8 @@ export default class levelScene extends Phaser.Scene {
         document.getElementById('divWeapon').innerHTML = this.player.sprite.weaponTypeText;
         document.getElementById('divBestScore').innerHTML = this.topScore;
         
-        this.physics.world.wrap(this.player.sprite, 16);
-        this.physics.world.wrap(this.asteroidGroup, 16);
+        this.physics.world.wrap(this.player.sprite, 1);
+        this.physics.world.wrap(this.asteroidGroup, 1);
         
         if (Phaser.Input.Keyboard.JustDown(this.keys.pause)) {
             this.scene.launch('pauseScene');
@@ -349,6 +349,7 @@ export default class levelScene extends Phaser.Scene {
                 this.score = 0;
                 this.multiplier = 0;
                 this.player.sprite.weaponType = 0;
+                this.player.resetWeapons();
 
                 // restart game
                 this.time.addEvent({
