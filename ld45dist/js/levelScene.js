@@ -37,6 +37,7 @@ export default class levelScene extends Phaser.Scene {
     create() {
         
         this.GameInBulletHell = false;
+        document.getElementById('divLoading').style.display = 'none';
         
         this.musicCounter = 1;
         this.musicMax = 3;
@@ -62,6 +63,8 @@ export default class levelScene extends Phaser.Scene {
         this.highScore = 0;
         this.multiplier = 0;
         this.player.sprite.weaponType = 0;
+        
+        this.gameovertext = null;
 
         this.createTimer();
         
@@ -163,14 +166,20 @@ export default class levelScene extends Phaser.Scene {
         this.asteroid.health = health;
         this.asteroid.timeAlive = 0;
         
-        /*var text = this.game.add.text(0, 0, this.asteroid.health, {
+        /*
+        let text = this.add.text(0, 0, this.asteroid.health, {
             font: "bold 32px Arial",
             align: "center"
         });
+        
         text.setTint(0xff00ff, 0xffff00, 0x0000ff, 0xff0000);
-        text.anchor.set(0.5);
+        //text.anchor.set(0.5);
         text.setOrigin(0.5, 0.5);
-        this.asteroid.addChild(text);*/
+        
+        let container = this.add.container(0, 0, [ this.asteroid, text ]);
+        container.setSize(64, 64);
+        this.physics.world.enable(container);
+        */
         
         if (fadeIn) {
             this.asteroid.setAlpha(0.2)
@@ -317,6 +326,7 @@ export default class levelScene extends Phaser.Scene {
 
             if(currentPlayer.sprite.lives <= 0) {
                 console.log('GAME OVER MAN; GAME OVER!');
+                this.gameovertext = this.add.text(100, 100, 'GAME OVER, try again!', { fontSize: '32px', fill: '#000' });
                 this.sndPlayerGameOver.play();
                 playerObjectHit.setActive(false).setVisible(false);
                 this.player.sprite.emitter.on = false;
@@ -339,7 +349,10 @@ export default class levelScene extends Phaser.Scene {
                 this.time.addEvent({
                     delay: 4000,
                     callback: function () {
-                        // start timer, reset lives and player
+                        if(this.gameovertext != null) {
+                            this.gameovertext.destroy();    
+                        }
+                        
                         this.createTimer();
                         currentPlayer.sprite.lives = 3;
                         this.cam.fadeIn(1000, 255, 255, 255);

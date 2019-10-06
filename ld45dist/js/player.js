@@ -14,8 +14,8 @@ export default class Player {
         
         // Add shield
         this.shield = null; //scene.playerGroup.create(x, y, "shield").setOrigin(0.5, 0.5).setImmovable();
-        this.shieldAliveConst = 5;
-        this.shieldCoolDownConst = 30;
+        this.shieldAliveConst = 12;
+        this.shieldCoolDownConst = 20;
         this.shieldCounterAlive = this.shieldAliveConst;
         this.shieldCoolDownCounter = this.shieldCoolDownConst;
         this.shieldIsActive = false;

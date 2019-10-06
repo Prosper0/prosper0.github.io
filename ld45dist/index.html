@@ -9,11 +9,24 @@
         canvas {
              border: 1px solid black;
         }
+        .blink_me {
+            animation: blinker 1s linear infinite;
+            font-weight: bold;
+            color: red;
+        }
+
+        @keyframes blinker {
+          50% {
+            opacity: 0;
+          }
+        }
+
     </style>
 </head>
 
 <body>
     <div id="gameCanvas"></div>
+    <div class="blink_me" id="divLoading">LOADING !!! Stand by...</div>
     <p>Arrow Keys to move. S for shield. Spacebar to fire (when you have weapon).</p>
     <p>'P' to pause.</p>
     <div>Lives: <span id="divLives"></span></div>
